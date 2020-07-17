@@ -57,56 +57,66 @@ def main():
     max_single_requests_per_hour = 100  # Максимальное число одиночных запросов в час
     max_single_requests_per_day = 1000  # Максимальное число одиночных запросов в сутки
 
-    subqueries_counter = 0  # счётчик подзапросов
+
     request_counter = 0  # счётчик запросов
 
     group_request_params = {"token": TOKEN, "request": []}  # сформируем параметры группового запроса
-    to_write_list = []  # формирую первый пакет на "запрос" мы будем записывать сюда номер человека и регион,
+    subqueries_list = []  # формирую первый пакет на "запрос" мы будем записывать сюда номер человека и регион,
     # по которым сможем в дальнейшем определить, куда записывать полученные данные
 
     for region in person_keys_list[4:]:  # заполнять таблицу мы будем регион за регионом для каждого согласно списка
-        for person_i in range(0, len(excel_data_dict) - 1):  # перебираем людей для этого региона
+        for person_i in range(0, len(excel_data_dict)):  # перебираем людей для этого региона
             # если мы уже набрали 50 подзапросов, можно производить запрос
-            if subqueries_counter == 23:
+            if len(subqueries_list) == 10:
+                print('произведём запрос')
                 request_counter += 1
                 sleep(0.34)
                 group_request = requests.post(f'{URL}search/group', json=group_request_params).json()
+
+                print('\nЗапрос', group_request)
+
                 group_request_task_id = group_request["response"]["task"]
                 group_request_params["request"] = []
+
 
                 while True:
                     request_counter += 1
                     sleep(4.2)  # кто знает, сколько серверу понадобится для обработки запроса?
                     answer = requests.get(f'{URL}result', params={"token": TOKEN, "task": group_request_task_id}).json()
+                    print('Задача ещё исполняется')
                     if answer["response"]["task_end"] is not None:
                         break
-                print(answer)
-                print('')
 
-                number_of_person_write_list = 0
+                print('\nОтвет', answer)
+                number_of_person = 0
+                # начинаем перечислять результаты запросов (по результату на человека (на подзапрос))
                 for person_result in answer["response"]["result"]:
                     writing_data = ''
-                    i = 0
-                    for result in person_result["result"]:
-                        if len(result) > 2:
+                    i = 0  # инициация нумерации (результатов на человека может быть несколько)
+                    if len(person_result["result"]) == 0:
+                        writing_data = 'нет'
+                    else:
+                        for result in person_result["result"]:
                             i += 1
                             writing_data += str(i) + '. '
                             for key in result:
                                 writing_data += result[key] + ' '
-                        else:
-                            writing_data = 'нет'
 
-                    excel_data_dict[to_write_list[number_of_person_write_list][0]][to_write_list[number_of_person_write_list][1]] = writing_data
-                    number_of_person_write_list += 1
-
-                to_write_list = []
-                subqueries_counter = 0
+                    print('\nЗаписано в человека', number_of_person, writing_data)
+                    # запишем полученный ответ(ы)
+                    # writing_data subqueries_list[number_of_person][0] - номер человека в словаре
+                    # [subqueries_list[number_of_person][1]] - регион в который будет запись
+                    excel_data_dict[subqueries_list[number_of_person][0]][subqueries_list[number_of_person][1]] = writing_data
+                    number_of_person += 1
+                subqueries_list = []
                 print(excel_data_dict)
                 print('')
 
             if excel_data_dict[person_i][region] != 'нет':
-                subqueries_counter += 1
-                to_write_list.append([person_i, region])
+                # person_i - номер человека в словаре
+                # region - регион в который будет запись
+                subqueries_list.append([person_i, region])
+                print(subqueries_list)
                 group_request_params["request"].append(
                     {
                         "type": 1,

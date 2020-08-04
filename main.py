@@ -7,7 +7,9 @@ global URL, ACCESS_TOKEN, FILE, TIME_FOR_ANSWER
 URL = 'https://api-ip.fssprus.ru/api/v1.0/'  # на случай если сервер API изменится
 TOKEN = open(
     'C:/Google Drive/program/matirials_for_fssp_api/fssp_token.txt').read()  # здесь вы указываете свой токен доступа
-FILE = 'C:/Google Drive/program/matirials_for_fssp_api/test.xlsx'  # файл, с которым будете работать
+FILE = 'debtor_list.xlsx'  # файл, с которым будете работать в формате колонок:
+# Фамилия | Имя | Отчество | Дата рождения | 63 | 56 | 1 | 2 | ... и далее регионы
+# Утин    | Вор | Молевич  | 17.07.1994    | 63 | 56 | 1 | 2 | ... .xlsx
 TIME_FOR_ANSWER = 42  # иногда сервера fssp требуют на обработку групповго запрса минут 5 (в выходыне особенно)
 
 
@@ -19,10 +21,10 @@ def test():
     """request = requests.get(f'{URL}search/physical', params={
         'token': TOKEN,
         'region': 56,
-        'firstname': 'Сергей',
-        'secondname': 'Александрович',
-        'lastname': 'СПИРИДОНОВ',
-        'birthdate': '04.09.1983',
+        'firstname': 'Алексей',
+        'secondname': 'Анатольевич',
+        'lastname': 'Навальный',
+        'birthdate': '04.06.1976',
     }
                            ).json()
 

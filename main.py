@@ -8,8 +8,8 @@ URL = 'https://api-ip.fssprus.ru/api/v1.0/'  # на случай если сер
 TOKEN = open(
     'C:/Google Drive/program/matirials_for_fssp_api/fssp_token.txt').read()  # здесь вы указываете свой токен доступа
 FILE = 'debtor_list.xlsx'  # файл, с которым будете работать в формате колонок:
-# Фамилия | Имя | Отчество | Дата рождения | 63 | 56 | 1 | 2 | ... и далее регионы
-# Утин    | Вор | Молевич  | 17.07.1994    | 63 | 56 | 1 | 2 | ... .xlsx
+# Фамилия   |   Имя   |   Отчество   | Дата рождения | 1 | 2 | 3 | 63 | ... и далее регионы
+# Навальный | Алексей | Анатольевич  | 04.06.1976    | 1 | 2 | 3 | 63 | ... .xlsx
 TIME_FOR_ANSWER = 42  # иногда сервера fssp требуют на обработку групповго запрса минут 5 (в выходыне особенно)
 
 
@@ -99,7 +99,7 @@ def main():
                 group_request = requests.post(f'{URL}search/group', json=group_request_params).json()
 
                 print('\nЗапрос', group_request)
-                # '' id задачи
+                # '044c53e1-8aa5-4f2f-9fa4-f9028d5b00a7' id задачи
                 group_request_task_id = group_request["response"]["task"]
                 group_request_params["request"] = []
 

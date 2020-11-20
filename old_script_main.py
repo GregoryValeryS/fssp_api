@@ -1,81 +1,60 @@
 import requests
 from time import sleep
 import pandas
-from sys import argv as sys_argv, exit as sys_exit
-from PyQt5 import QtWidgets
-from ui_window_main import Ui_MainWindow
 
-global URL, TOKENS, TOKEN_ID, TOKEN, TIME_FOR_ANSWER
+global URL, ACCESS_TOKEN, FILE, TIME_FOR_ANSWER
 URL = 'https://api-ip.fssprus.ru/api/v1.0/'  # на случай если сервер API изменится
-# здесь вы указываете свой токен доступа
-TOKENS = open('C:/Google Drive/program/matirials_for_fssp_api/fssp_token.txt').read().split('\n')
-TOKEN_ID = 0
-TOKEN = TOKENS[TOKEN_ID]
+TOKEN = open(
+    'C:/Google Drive/program/matirials_for_fssp_api/fssp_token.txt').read()  # здесь вы указываете свой токен доступа
+FILE = 'debtor_list.xlsx'  # файл, с которым будете работать в формате колонок:
+# Фамилия   |   Имя   |   Отчество   | Дата рождения | 1 | 2 | 3 | 63 | ... и далее регионы
+# Навальный | Алексей | Анатольевич  | 04.06.1976    | 1 | 2 | 3 | 63 | ... .xlsx
 TIME_FOR_ANSWER = 42  # иногда сервера fssp требуют на обработку групповго запрса минут 5 (в выходыне особенно)
-
 
 def status(task: str):
     request = requests.get(f'{URL}status', params={"token": TOKEN, "task": task}).json()
 
 
-def search():
-    # запишем данные из экселя и преобразуем их в список словарей
-    region_excel = main_menu.lineEdit_find_filename.text()  # файл, с которым будете работать в формате колонок:
-    # Фамилия   |   Имя   |   Отчество   | Дата рождения | 1 | 2 | 3 | 63 | ... и далее регионы
-    # Навальный | Алексей | Анатольевич  | 04.06.1976    | 1 | 2 | 3 | 63 | ... .xlsx
-    region_dict = pandas.read_excel(f'{region_excel}.xlsx').to_dict(orient='record')
-
-    # сгенерируем метаданные, ключи и все id
-    region_keys_list = list(region_dict[0].keys())
-    region_id_list = range(len(region_dict))
-
-    # преобразуем формат даты в текст, удалим лишние пробелы, заменим 'nan' на пустые строки
-    for key in region_keys_list:
-        for i in region_id_list:
-            region_dict[i][key] = str(region_dict[i][key]).replace(' ', '')
-            if type(key) is int:
-                if region_dict[i][key] == 'x':
-                    continue
-                else:
-                    region_dict[i][key] = ''
-            if key == 'birthdate':
-                birthdate_in_list = region_dict[i][key][0:10].replace('-', '.').split('.')
-                # если в начале стоит год
-                if len(birthdate_in_list[0]) == 4:  # переносим его в конец
-                    region_dict[i][key] = str(f'{birthdate_in_list[2]}.{birthdate_in_list[1]}.{birthdate_in_list[0]}')
-                # если в конце стоит год
-                elif len(birthdate_in_list[2]) == 4: # оставляем всё, как есть
-                    region_dict[i][key] = str(f'{birthdate_in_list[0]}.{birthdate_in_list[1]}.{birthdate_in_list[2]}')
-                # если в начале год из 2х символов и в конце дата
-                elif int(birthdate_in_list[0]) > 31 and len(birthdate_in_list[0]) == 2 and int(birthdate_in_list[2]) <= 31:
-                    # переносим год назад, добавляем 19
-                    region_dict[i][key] = str(f'{birthdate_in_list[2]}.{birthdate_in_list[1]}.19{birthdate_in_list[0]}')
-                # если в конце год из 2 символов и в начале число
-                elif int(birthdate_in_list[2]) > 31 and len(birthdate_in_list[2]) == 2 and int(birthdate_in_list[0]) <= 31:
-                    # отсавляем порядок тот же, добавляем 19 в году
-                        region_dict[i][key] = str(f'{birthdate_in_list[0]}.{birthdate_in_list[1]}.19{birthdate_in_list[2]}')
-                # если в начале и в конце возможны год и дата
-                elif int(birthdate_in_list[0]) <= 31 and int(birthdate_in_list[2]) <= 31:
-                    # надо решить, что поставить перед годом, 20 ил 19
-                    if int(birthdate_in_list[2]) < 20:
-                        region_dict[i][key] = str(f'{birthdate_in_list[0]}.{birthdate_in_list[1]}.20{birthdate_in_list[2]}')
-                    else:
-                        region_dict[i][key] = str(f'{birthdate_in_list[0]}.{birthdate_in_list[1]}.19{birthdate_in_list[2]}')
-                else:
-                    main_menu.textBrowser.append('\nНеврный формат даты!')
-
-    one_result = {
-        'id': None,
-        'date': None,
-        'region': None,
-        'name': None,
-        'exe_production': None,
-        'details': None,
-        'subject': None,
-        'department': None,
-        'bailiff': None,
-        'ip_end': None
+def test():
+    """request = requests.get(f'{URL}search/physical', params={
+        'token': TOKEN,
+        'region': 56,
+        'firstname': 'Алексей',
+        'secondname': 'Анатольевич',
+        'lastname': 'Навальный',
+        'birthdate': '04.06.1976',
     }
+                           ).json()
+
+    print(request)
+    answer = requests.get(f'{URL}result', params={"token": TOKEN, "task": request["response"]["task"]}).json()
+
+    print(answer)"""
+    pass
+
+
+def main():
+    # запишем данные из экселя и преобразуем их в список словарей, где каждый словарь - человек
+    print(1)
+    excel_data_dict = pandas.read_excel(f'{FILE}').to_dict(orient='record')
+    # преобразуем формат даты в текст, удалим лишние пробелы, заменим 'nan' на пустые строки
+    person_keys_list = list(excel_data_dict[0].keys())
+
+    for person in excel_data_dict:
+
+        for fio in person_keys_list[0:3]:  # первые 3 кюча - Фамилия, Имя, Отчество. Удалим пробелы
+            person[fio] = person[fio].replace(' ', '')
+
+        # дату рождения необходимо перевернуть из формата даты, если год стоит первым
+        date_list = str(person['Дата рождения'])[0:10].replace('-', '.').replace(' ', '').split('.')
+        if len(date_list[0]) == 4:
+            person['Дата рождения'] = str(date_list[2] + '.' + date_list[1] + '.' + date_list[0])
+        else:
+            person['Дата рождения'] = str(date_list[0] + '.' + date_list[1] + '.' + date_list[2])
+
+        for region in person_keys_list[4:]:  # все ключи после 4 - номера регионов, зачищаем значения
+            if str(person[region]) == 'nan':
+                person[region] = ''
 
     max_subqueries_in_group_request = 50  # Максимальное число подзапросов в групповом запросе
     max_single_requests_per_hour = 100  # Максимальное число одиночных запросов в час
@@ -86,8 +65,6 @@ def search():
     group_request_params = {"token": TOKEN, "request": []}  # сформируем параметры группового запроса
     subqueries_list = []  # формирую первый пакет на "запрос" мы будем записывать сюда номер человека и регион,
     # по которым сможем в дальнейшем определить, куда записывать полученные данные
-
-    return False
 
     for region in person_keys_list[4:]:  # заполнять таблицу мы будем регион за регионом для каждого согласно списка
         for person_i in range(0, len(excel_data_dict)):  # перебираем людей для этого региона
@@ -164,30 +141,6 @@ def search():
                 data_frame.to_excel(f'{FILE}', index=False)
 
     print('Работа с файлом завершена')
-
-
-def clear():
-    pass
-
-
-def main():
-    global main_menu
-    app = QtWidgets.QApplication(sys_argv)  # Create application - инициализация приложения
-    MainWindow = QtWidgets.QMainWindow()  # Create form main menu создание формы окна главного меню
-
-    main_menu = Ui_MainWindow()
-    main_menu.setupUi(MainWindow)
-    MainWindow.show()
-
-    main_menu.pushButton_search.clicked.connect(search)
-    main_menu.pushButton_clear.clicked.connect(clear)
-
-    main_menu.textBrowser.append("Программа 'Tywin' иницирована и готова к использованию\n"
-                                 'Версия - Alpha 0.1\n'
-                                 'Связь с автором - Григорий Скворцов GregoryValeryS@gmail.com\n'
-                                 'GNU General Public License v3.0\n')
-
-    sys_exit(app.exec_())  # Run main loop
 
 
 if __name__ == '__main__':

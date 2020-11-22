@@ -7,26 +7,29 @@
     <x>0</x>
     <y>0</y>
     <width>591</width>
-    <height>493</height>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGroupBox" name="groupBox_search">
+   <widget class="QGroupBox" name="groupBox_region">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
       <width>241</width>
-      <height>51</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="title">
      <string>excel-файл, список людей и регионов</string>
     </property>
-    <widget class="QLineEdit" name="lineEdit_search_filename">
+    <widget class="QLineEdit" name="lineEdit_region_filename">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -36,7 +39,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>debtor_list</string>
+      <string>debtors</string>
      </property>
     </widget>
    </widget>
@@ -44,7 +47,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>130</y>
+      <y>80</y>
       <width>571</width>
       <height>241</height>
      </rect>
@@ -56,7 +59,7 @@
       <x>260</x>
       <y>10</y>
       <width>241</width>
-      <height>51</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="title">
@@ -72,7 +75,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>results</string>
+      <string>debtors_results</string>
      </property>
     </widget>
    </widget>
@@ -80,29 +83,22 @@
     <property name="geometry">
      <rect>
       <x>510</x>
-      <y>70</y>
+      <y>20</y>
       <width>71</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 206, 206);</string>
     </property>
     <property name="text">
      <string>Search</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_reset">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>10</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Reset</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_search_2">
+   <widget class="QPushButton" name="pushButton_update">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -110,6 +106,9 @@
       <width>71</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(212, 255, 212);</string>
     </property>
     <property name="text">
      <string>Update</string>

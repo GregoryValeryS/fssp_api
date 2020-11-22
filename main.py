@@ -84,10 +84,10 @@ def search():
     request_counter = 0  # счётчик запросов
 
     group_request_params = {"token": TOKEN, "request": []}  # сформируем параметры группового запроса
-    subqueries_list = []  # формирую первый пакет на "запрос" мы будем записывать сюда номер человека и регион,
+    subquery_list = []  # формирую первый пакет на "запрос" мы будем записывать сюда номер человека и регион,
     # по которым сможем в дальнейшем определить, куда записывать полученные данные
 
-    return False
+
 
     for region in person_keys_list[4:]:  # заполнять таблицу мы будем регион за регионом для каждого согласно списка
         for person_i in range(0, len(excel_data_dict)):  # перебираем людей для этого региона
@@ -166,7 +166,7 @@ def search():
     print('Работа с файлом завершена')
 
 
-def clear():
+def reset():
     pass
 
 
@@ -180,7 +180,7 @@ def main():
     MainWindow.show()
 
     main_menu.pushButton_search.clicked.connect(search)
-    main_menu.pushButton_clear.clicked.connect(clear)
+    main_menu.pushButton_reset.clicked.connect(reset)
 
     main_menu.textBrowser.append("Программа 'Tywin' иницирована и готова к использованию\n"
                                  'Версия - Alpha 0.1\n'

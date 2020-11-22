@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>262</width>
-    <height>351</height>
+    <width>591</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,13 +20,13 @@
       <x>10</x>
       <y>10</y>
       <width>241</width>
-      <height>81</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="title">
-     <string>Введите имя файла excel</string>
+     <string>excel-файл, список людей и регионов</string>
     </property>
-    <widget class="QLineEdit" name="lineEdit_find_filename">
+    <widget class="QLineEdit" name="lineEdit_search_filename">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -39,60 +39,80 @@
       <string>debtor_list</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_find_status">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>50</y>
-       <width>91</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Select files</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_clear">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>41</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Clear</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_search">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>50</y>
-       <width>71</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Search</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>241</width>
+      <y>130</y>
+      <width>571</width>
       <height>241</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_results">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>10</y>
+      <width>241</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>excel-файл, для записи результатов</string>
+    </property>
+    <widget class="QLineEdit" name="lineEdit_results_filename">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>221</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>results</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_search">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>70</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Search</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_reset">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>10</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_search_2">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>50</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update</string>
     </property>
    </widget>
   </widget>

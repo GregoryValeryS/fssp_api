@@ -137,10 +137,10 @@ def push_request(search_or_update: str, tokens: list):
 
                 # сформируем параметры группового запроса
                 group_request_params = {"token": tokens[token_id], "request": request}
-                # group_request = requests.post(f'{URL}search/group', json=group_request_params).json()
-                # print('\nЗапрос', group_request)
-                # '744eae2b-0846-4633-b8a2-c52bb1314983' id задачи group_request["response"]["task"]
-                task_id = '744eae2b-0846-4633-b8a2-c52bb1314983'
+                group_request = requests.post(f'{URL}search/group', json=group_request_params).json()
+                print('\nЗапрос', group_request)
+                # 'bc54c3f1-dd69-492c-8cc3-72293aee7da4' id задачи
+                task_id = group_request["response"]["task"]
 
                 print(f'Дадим время на обратку запроса - {time_for_answer} сек.')
                 sleep(time_for_answer)  # даем время на обработку запроса
@@ -158,13 +158,13 @@ def push_request(search_or_update: str, tokens: list):
                     params = {"token": tokens[token_id], "task": task_id}
                     answers = requests.get(f'{URL}result', params=params).json()
 
-                    sleep(time_for_answer)
                     if answers["response"]["task_end"] is not None:
                         print('Задача выполнена')
                         break
                     print(f'Сервера не отвечают, подождём ещё {time_for_answer} сек.')
+                    sleep(time_for_answer)
 
-                print('\nОтвет', answers)
+                print('\nОтвет', answers, '\n')
 
                 # Дозаписываем файл с результатами, считаем словарь
                 result_dict = pandas.read_excel(f'{result_excel_filename}.xlsx').to_dict(orient='records')
@@ -173,13 +173,17 @@ def push_request(search_or_update: str, tokens: list):
                 # для записи и обработки информации необходимо четко идентифицировать эти отношения
 
                 # начинаем перечислять результаты запросов (по результату на человека (на подзапрос))
+                answer_date = answers["response"]['task_end'][:10].replace('-', '.')
                 for answer in answers["response"]["result"]:
-                    if answer["status"] == 0:
+                    if len(answer['result']) != 0:
                         for result in answer["result"]:
                             result_dict.append(
-                                {'date': 'x',
-                                 'region': request[answer_counter]["params"]["region"],
-                                 'name': result["name"],
+                                {'date': answer_date,
+                                 'region': answer['query']['params']['region'],
+                                 'lastname': answer['query']['params']['lastname'],
+                                 'firstname': answer['query']['params']['firstname'],
+                                 'secondname': answer['query']['params']['secondname'],
+                                 'birthdate': answer['query']['params']['secondname'],
                                  'exe_production': result["exe_production"],
                                  'details': result["details"],
                                  'subject': result["subject"],
@@ -189,13 +193,15 @@ def push_request(search_or_update: str, tokens: list):
                             )
                     answer_counter += 1
 
-                print('\nНа запись', result_dict)
+                print('\nРезультаты', result_dict, '\n')
+                print('\nРегионы', region_dict, '\n')
                 request = []
 
                 # преобразовываем обратно в data frame и перезаписываем файл в excel
                 pandas.DataFrame.from_dict(region_dict).to_excel(f'{region_excel_filename}.xlsx', index=False)
                 pandas.DataFrame.from_dict(result_dict).to_excel(f'{result_excel_filename}.xlsx', index=False)
-
+                return None
+                sleep(time_for_answer)
     print('Работа с файлом завершена')
 
 

@@ -1,19 +1,20 @@
-import requests
+from requests import get, post
 from math import ceil
 from time import sleep
-import pandas
+from pandas import DataFrame, read_excel
 from sys import argv as sys_argv, exit as sys_exit
 from PyQt5 import QtWidgets
+
 from ui_window_main import Ui_MainWindow
 
 global URL, TOKENS
 URL = 'https://api-ip.fssprus.ru/api/v1.0/'  # на случай если сервер API изменится
-# здесь вы указываете свой токен доступа
+# здесь вы указываете свой токен доступа C:/Google Drive/program/matirials_for_fssp_api/
 TOKENS = open('C:/Google Drive/program/matirials_for_fssp_api/fssp_token.txt').read().split('\n')
 
 
 def status(task: str):
-    request = requests.get(f'{URL}status', params={"token": TOKEN, "task": task}).json()
+    request = get(f'{URL}status', params={"token": TOKEN, "task": task}).json()
 
 
 def search():
@@ -31,7 +32,11 @@ def push_request(search_or_update: str, tokens: list):
     # файл, с которым будете работать в формате колонок, X - не искать:
     # Фамилия   |   Имя   |   Отчество   | Дата рождения | 1 | 2 | 3 | 63 | ... и далее регионы
     # Навальный | Алексей | Анатольевич  | 04.06.1976    |   | X | X |    | ... .xlsx
-    region_dict = pandas.read_excel(f'{region_excel_filename}.xlsx').to_dict(orient='records')
+    try:
+        region_dict = read_excel(f'{region_excel_filename}.xlsx').to_dict(orient='records')
+    except:
+        main_menu.textBrowser.append('\nУкажите файл со списком людей и регионов.')
+        return None
 
     # сгенерируем метаданные, ключи и все id
     region_keys_list = list(region_dict[0].keys())
@@ -83,19 +88,6 @@ def push_request(search_or_update: str, tokens: list):
                 else:
                     main_menu.textBrowser.append('\nНеврный формат даты!')
 
-    one_result = {
-        'id': None,
-        'date': None,
-        'region': None,
-        'name': None,
-        'exe_production': None,
-        'details': None,
-        'subject': None,
-        'department': None,
-        'bailiff': None,
-        'ip_end': None
-    }
-
     token_id = 0  # Будем перебирать ключи в процессе
 
     max_len_query_list = 50  # Максимальное число подзапросов в групповом запросе
@@ -112,6 +104,7 @@ def push_request(search_or_update: str, tokens: list):
     for p_id in range(len(region_dict)):
         for region in regions:
             if region_dict[p_id][region] != 'X':
+                region_dict[p_id][region] = 'X'
                 request.append(
                     {"type": 1,
                      "params":
@@ -137,11 +130,11 @@ def push_request(search_or_update: str, tokens: list):
 
                 # сформируем параметры группового запроса
                 group_request_params = {"token": tokens[token_id], "request": request}
-                group_request = requests.post(f'{URL}search/group', json=group_request_params).json()
-                print('\nЗапрос', group_request)
-                # 'bc54c3f1-dd69-492c-8cc3-72293aee7da4' id задачи
-                task_id = group_request["response"]["task"]
+                group_request = post(f'{URL}search/group', json=group_request_params).json()
 
+                # 'a9dc76e4-9f00-41a0-b27b-78e5d7724b8d' id задачи group_request["response"]["task"]
+                task_id = group_request["response"]["task"]
+                print('\n', task_id, '\n')
                 print(f'Дадим время на обратку запроса - {time_for_answer} сек.')
                 sleep(time_for_answer)  # даем время на обработку запроса
 
@@ -156,7 +149,7 @@ def push_request(search_or_update: str, tokens: list):
                     request_counter += 1
 
                     params = {"token": tokens[token_id], "task": task_id}
-                    answers = requests.get(f'{URL}result', params=params).json()
+                    answers = get(f'{URL}result', params=params).json()
 
                     if answers["response"]["task_end"] is not None:
                         print('Задача выполнена')
@@ -164,10 +157,12 @@ def push_request(search_or_update: str, tokens: list):
                     print(f'Сервера не отвечают, подождём ещё {time_for_answer} сек.')
                     sleep(time_for_answer)
 
-                print('\nОтвет', answers, '\n')
-
                 # Дозаписываем файл с результатами, считаем словарь
-                result_dict = pandas.read_excel(f'{result_excel_filename}.xlsx').to_dict(orient='records')
+                try:
+                    result_dict = read_excel(f'{result_excel_filename}.xlsx').to_dict(orient='records')
+                except:
+                    main_menu.textBrowser.append(f'\nФайл {result_excel_filename} не найден, или имеет неподходящий '
+                                                 f'формат, или неверно структурирован\n')
 
                 answer_counter = 0  # индекс результата совпадает с номером человека в запросе
                 # для записи и обработки информации необходимо четко идентифицировать эти отношения
@@ -175,7 +170,7 @@ def push_request(search_or_update: str, tokens: list):
                 # начинаем перечислять результаты запросов (по результату на человека (на подзапрос))
                 answer_date = answers["response"]['task_end'][:10].replace('-', '.')
                 for answer in answers["response"]["result"]:
-                    if len(answer['result']) != 0:
+                    if answer['result']:
                         for result in answer["result"]:
                             result_dict.append(
                                 {'date': answer_date,
@@ -183,7 +178,8 @@ def push_request(search_or_update: str, tokens: list):
                                  'lastname': answer['query']['params']['lastname'],
                                  'firstname': answer['query']['params']['firstname'],
                                  'secondname': answer['query']['params']['secondname'],
-                                 'birthdate': answer['query']['params']['secondname'],
+                                 'birthdate': answer['query']['params']['birthdate'],
+                                 'name': result["name"],
                                  'exe_production': result["exe_production"],
                                  'details': result["details"],
                                  'subject': result["subject"],
@@ -191,17 +187,19 @@ def push_request(search_or_update: str, tokens: list):
                                  'bailiff': result["bailiff"],
                                  'ip_end': result["ip_end"]}
                             )
+
                     answer_counter += 1
 
-                print('\nРезультаты', result_dict, '\n')
-                print('\nРегионы', region_dict, '\n')
+                for result in result_dict:
+                    print('\nЗаписано', result)
+
                 request = []
 
                 # преобразовываем обратно в data frame и перезаписываем файл в excel
-                pandas.DataFrame.from_dict(region_dict).to_excel(f'{region_excel_filename}.xlsx', index=False)
-                pandas.DataFrame.from_dict(result_dict).to_excel(f'{result_excel_filename}.xlsx', index=False)
-                return None
+                DataFrame.from_dict(region_dict).to_excel(f'{region_excel_filename}.xlsx', index=False)
+                DataFrame.from_dict(result_dict).to_excel(f'{result_excel_filename}.xlsx', index=False)
                 sleep(time_for_answer)
+
     print('Работа с файлом завершена')
 
 
